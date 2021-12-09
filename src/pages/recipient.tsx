@@ -8,21 +8,35 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const recipient = urlParams.get('recipient');
 
+function commitFunds(inputRef) {
+  console.log('commitFunds inputRef.current.value', inputRef.current.value);
+  offerMatchingFunds(recipient, inputRef.current.value).then((result) => {
+    console.log('offerMatchingFunds result', result); // TODO: Show toast feedback to visitor. Re-enable the submit button.
+  });
+}
+
 function rescindFunds(amountToRescindRef) {
-  console.log('rescindFunds amountToRescindRef', amountToRescindRef.current.value);
+  console.log('rescindFunds amountToRescindRef.current.value', amountToRescindRef.current.value);
   rescindMatchingFunds(recipient, amountToRescindRef.current.value).then((result) => {
     console.log('rescindMatchingFunds result', result); // TODO: Show toast feedback to visitor. Re-enable the submit button.
   });
 }
 
 function SignedActions({ matcherAmounts, signOut }) {
+  const amountToCommitRef = React.useRef(null);
   const amountToRescindRef = React.useRef(null);
   return (
     <div>
-      <div>
-        <input type="number" name="amountToCommit" />
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          // TODO: Disable the submit button.
+          commitFunds(amountToCommitRef);
+        }}
+      >
+        <input type="number" name="amountToCommit" ref={amountToCommitRef} />
         <button type="submit">Commit Funds</button>
-      </div>
+      </form>
       {matcherAmounts && (
         <form
           onSubmit={(event) => {
@@ -61,7 +75,7 @@ function signOut() {
 
 function parseCommitments(commitments, recipient: string) {
   // TODO Remove this temporary function once the contract is updated to return JSON
-  const lines = commitments.split('\n');
+  const lines = commitments.split('. ');
   const result = {};
   lines.forEach((line) => {
     const separator = ` is committed to match donations to ${recipient} up to a maximum of `;
