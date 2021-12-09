@@ -2,7 +2,6 @@
 
 import { keyStores, Near, WalletConnection, Contract } from 'near-api-js';
 import BN from 'bn.js';
-import { storageKeyContractId } from '../composables/contractProvider';
 
 // TODO
 export const contractId = process.env.GATSBY_CONTRACT_ID;
@@ -15,8 +14,6 @@ const gasOfferMatchingFunds = new BN(process.env.GATSBY_GAS_OFFER_MATCHING_FUNDS
 const appKeyPrefix = 'donationMatcher';
 
 console.log({ contractId, appKeyPrefix });
-
-const { localStorage } = window;
 
 export const near = new Near({
   networkId,
@@ -41,16 +38,14 @@ const contract: DonationMatcherContract = new Contract(walletConnection.account(
   // Sender is the account ID to initialize transactions.
 });
 
-function getContractId(): string {
-  return localStorage.getItem(storageKeyContractId);
-}
+console.log({ contract });
 
 // --------------------------------------------------------------------------
 // functions to call contract Public VIEW methods
 // --------------------------------------------------------------------------
 
 export async function getCommitments(recipient: string) {
-  // return walletConnection.account().viewFunction(getContractId(), 'getCommitments', { recipient });
+  // return walletConnection.account().viewFunction(contractId, 'getCommitments', { recipient });
   console.log('getCommitments', recipient);
   try {
     return contract.getCommitments({ recipient });
@@ -64,7 +59,6 @@ export async function getCommitments(recipient: string) {
 // --------------------------------------------------------------------------
 
 export function offerMatchingFunds({ recipient, attachedDeposit }) {
-  const contractId = getContractId();
   return walletConnection.account().functionCall({
     contractId,
     methodName: 'offerMatchingFunds',

@@ -2,8 +2,7 @@ import * as React from 'react';
 
 import Layout from '../components/layout';
 import Seo from '../components/seo';
-import { useWallet } from '../composables/near';
-import { getCommitments } from '../services/near';
+import { contractId, getCommitments, walletConnection } from '../services/near';
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -32,15 +31,30 @@ function SignedActions({ matcherAmounts, signOut }) {
   );
 }
 
+function signIn() {
+  return walletConnection.requestSignIn({
+    contractId,
+    methodNames: [], // add methods names to restrict access
+  });
+}
+
+function signOut() {
+  return walletConnection.signOut();
+}
+
 function RecipientPage() {
   const [matcherAmounts, setMatcherAmounts] = React.useState(null);
-  const { accountId, signIn, signOut } = useWallet();
+  const hasWallet = walletConnection.isSignedIn();
 
   React.useEffect(() => {
     (async function () {
       // https://stackoverflow.com/a/53572588/470749 warns about race condition
-      console.log({ accountId, recipient });
-      const commitments = await getCommitments(recipient);
+      console.log({ hasWallet, recipient });
+      if (!hasWallet) {
+        console.log('prompting signIn');
+        signIn(); // TODO Why is this broken?
+      }
+      const commitments = await getCommitments(recipient); // TODO Why is this broken?
       console.log({ commitments });
       setMatcherAmounts(commitments);
     })();
@@ -51,7 +65,7 @@ function RecipientPage() {
   const matcherAmountsLabel = matcherAmounts
     ? 'These Matchers have committed to match donations up to these amounts (in yoctoNEAR):'
     : 'There are no donation matchers yet for this recipient.';
-  const hasWallet = Boolean(accountId.current);
+
   return (
     <Layout>
       <Seo title="Recipient" />
