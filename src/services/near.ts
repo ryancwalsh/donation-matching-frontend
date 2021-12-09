@@ -2,6 +2,8 @@
 
 import { keyStores, Near, WalletConnection, Contract } from 'near-api-js';
 import BN from 'bn.js';
+import * as buffer from 'buffer';
+(window as any).Buffer = buffer.Buffer; // https://stackoverflow.com/a/70296962/470749 https://github.com/isaacs/core-util-is/issues/27#issuecomment-878969583
 
 // TODO
 export const contractId = process.env.GATSBY_CONTRACT_ID;

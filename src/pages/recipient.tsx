@@ -39,7 +39,23 @@ function signIn() {
 }
 
 function signOut() {
-  return walletConnection.signOut();
+  console.log('signOut');
+  walletConnection.signOut();
+  window.location.reload();
+}
+
+function parseCommitments(commitments, recipient: string) {
+  // TODO Remove this temporary function once the contract is updated to return JSON
+  const lines = commitments.split('\n');
+  const result = {};
+  lines.forEach((line) => {
+    const separator = ` is committed to match donations to ${recipient} up to a maximum of `;
+    const pieces = line.split(separator);
+    const matcher = pieces[0];
+    const amount = pieces[1];
+    result[matcher] = amount;
+  });
+  return result;
 }
 
 function RecipientPage() {
@@ -50,13 +66,14 @@ function RecipientPage() {
     (async function () {
       // https://stackoverflow.com/a/53572588/470749 warns about race condition
       console.log({ hasWallet, recipient });
-      if (!hasWallet) {
-        console.log('prompting signIn');
-        signIn(); // TODO Why is this broken?
-      }
-      const commitments = await getCommitments(recipient); // TODO Why is this broken?
-      console.log({ commitments });
-      setMatcherAmounts(commitments);
+      // if (!hasWallet) {
+      //   console.log('prompting signIn');
+      //   signIn();
+      // }
+      const commitments = await getCommitments(recipient);
+      const parsedCommitments = parseCommitments(commitments, recipient);
+      console.log({ commitments, parsedCommitments });
+      setMatcherAmounts(parsedCommitments);
     })();
   }, []);
 
@@ -77,7 +94,7 @@ function RecipientPage() {
         {matcherAmounts &&
           Object.keys(matcherAmounts).map((matcher) => {
             return (
-              <div>
+              <div key={matcher}>
                 <label>{matcher}:</label> {matcherAmounts[matcher]}
               </div>
             );
