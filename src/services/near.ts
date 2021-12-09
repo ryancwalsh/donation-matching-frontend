@@ -11,6 +11,7 @@ const nodeUrl = process.env.GATSBY_NODE_URL;
 const walletUrl = process.env.GATSBY_WALLET_URL;
 const gasOfferMatchingFunds = new BN(process.env.GATSBY_GAS_OFFER_MATCHING_FUNDS);
 const gasRescindMatchingFunds = new BN(process.env.GATSBY_GAS_RESCIND_MATCHING_FUNDS);
+const gasDonate = new BN(process.env.GATSBY_GAS_DONATE);
 // const gas = new BN(process.env.GATSBY_GAS);
 
 const appKeyPrefix = 'donationMatcher';
@@ -76,5 +77,14 @@ export function rescindMatchingFunds(recipient: string, requestedAmount: number)
     methodName: 'rescindMatchingFunds',
     args: { recipient, requestedAmount },
     gas: gasRescindMatchingFunds,
+  });
+}
+
+export function donate(recipient: string, requestedAmount: number) {
+  return walletConnection.account().functionCall({
+    contractId,
+    methodName: 'donate',
+    args: { recipient, requestedAmount },
+    gas: gasDonate,
   });
 }

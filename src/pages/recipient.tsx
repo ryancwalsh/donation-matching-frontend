@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import Layout from '../components/layout';
 import Seo from '../components/seo';
-import { contractId, getCommitments, offerMatchingFunds, rescindMatchingFunds, walletConnection } from '../services/near';
+import { contractId, donate, getCommitments, offerMatchingFunds, rescindMatchingFunds, walletConnection } from '../services/near';
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -22,9 +22,17 @@ function rescindFunds(amountToRescindRef) {
   });
 }
 
+function donateFunds(inputRef) {
+  console.log('donateFunds inputRef.current.value', inputRef.current.value);
+  donate(recipient, inputRef.current.value).then((result) => {
+    console.log('donate result', result); // TODO: Show toast feedback to visitor. Re-enable the submit button.
+  });
+}
+
 function SignedActions({ matcherAmounts, signOut }) {
   const amountToCommitRef = React.useRef(null);
   const amountToRescindRef = React.useRef(null);
+  const amountToDonateRef = React.useRef(null);
   return (
     <div>
       <form
@@ -49,10 +57,16 @@ function SignedActions({ matcherAmounts, signOut }) {
           <button type="submit">Rescind Committed Funds</button>
         </form>
       )}
-      <div>
-        <input type="number" name="amountToDonate" />
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          // TODO: Disable the submit button.
+          donateFunds(amountToDonateRef);
+        }}
+      >
+        <input type="number" name="amountToDonate" ref={amountToDonateRef} />
         <button type="submit">Donate</button>
-      </div>
+      </form>
       <div>
         <button onClick={signOut}>Sign Out</button>
       </div>
