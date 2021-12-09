@@ -60,7 +60,7 @@ export async function getCommitments(recipient: string) {
 // functions to call contract Public CHANGE methods
 // --------------------------------------------------------------------------
 
-export function offerMatchingFunds(recipient: string, attachedDeposit: number) {
+export function offerMatchingFunds(recipient: string, attachedDeposit: BN) {
   return walletConnection.account().functionCall({
     contractId,
     methodName: 'offerMatchingFunds',
