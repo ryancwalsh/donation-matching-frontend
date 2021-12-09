@@ -1,9 +1,9 @@
 module.exports = {
   siteMetadata: {
     title: `Donation Matcher`,
-    description: ``,
-    author: ``,
-    siteUrl: ``,
+    // description: ``,
+    author: `Ryan Walsh`,
+    // siteUrl: ``,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
