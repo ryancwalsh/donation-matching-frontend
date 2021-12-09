@@ -2,12 +2,21 @@ import * as React from 'react';
 
 import Layout from '../components/layout';
 import Seo from '../components/seo';
-import { contractId, getCommitments, walletConnection } from '../services/near';
+import { contractId, getCommitments, offerMatchingFunds, rescindMatchingFunds, walletConnection } from '../services/near';
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+const recipient = urlParams.get('recipient');
+
+function rescindFunds(amountToRescindRef) {
+  console.log('rescindFunds amountToRescindRef', amountToRescindRef.current.value);
+  rescindMatchingFunds(recipient, amountToRescindRef.current.value).then((result) => {
+    console.log('rescindMatchingFunds result', result); // TODO: Show toast feedback to visitor. Re-enable the submit button.
+  });
+}
 
 function SignedActions({ matcherAmounts, signOut }) {
+  const amountToRescindRef = React.useRef(null);
   return (
     <div>
       <div>
@@ -15,10 +24,16 @@ function SignedActions({ matcherAmounts, signOut }) {
         <button type="submit">Commit Funds</button>
       </div>
       {matcherAmounts && (
-        <div>
-          <input type="number" name="amountToRescind" />
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            // TODO: Disable the submit button.
+            rescindFunds(amountToRescindRef);
+          }}
+        >
+          <input type="number" name="amountToRescind" ref={amountToRescindRef} />
           <button type="submit">Rescind Committed Funds</button>
-        </div>
+        </form>
       )}
       <div>
         <input type="number" name="amountToDonate" />
@@ -61,11 +76,12 @@ function parseCommitments(commitments, recipient: string) {
 function RecipientPage() {
   const [matcherAmounts, setMatcherAmounts] = React.useState(null);
   const hasWallet = walletConnection.isSignedIn();
+  const walletAccountId = walletConnection.getAccountId();
 
   React.useEffect(() => {
     (async function () {
       // https://stackoverflow.com/a/53572588/470749 warns about race condition
-      console.log({ hasWallet, recipient });
+      console.log({ hasWallet, walletAccountId, recipient });
       // if (!hasWallet) {
       //   console.log('prompting signIn');
       //   signIn();
@@ -76,8 +92,6 @@ function RecipientPage() {
       setMatcherAmounts(parsedCommitments);
     })();
   }, []);
-
-  const recipient = urlParams.get('recipient');
 
   const matcherAmountsLabel = matcherAmounts
     ? 'These Matchers have committed to match donations up to these amounts (in yoctoNEAR):'
