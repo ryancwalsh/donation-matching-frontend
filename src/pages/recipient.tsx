@@ -4,7 +4,7 @@ import Layout from '../components/layout';
 import Seo from '../components/seo';
 import { contractId, donate, getCommitments, offerMatchingFunds, rescindMatchingFunds, walletConnection } from '../services/near';
 
-const queryString = window.location.search;
+const queryString = typeof window !== `undefined` ? window.location.search : '';
 const urlParams = new URLSearchParams(queryString);
 const recipient = urlParams.get('recipient');
 
@@ -84,12 +84,14 @@ function signIn() {
 function signOut() {
   console.log('signOut');
   walletConnection.signOut();
-  window.location.reload();
+  if (typeof window !== `undefined`) {
+    window.location.reload();
+  }
 }
 
 function parseCommitments(commitments, recipient: string) {
   // TODO Remove this temporary function once the contract is updated to return JSON
-  const lines = commitments.split('. ');
+  const lines = commitments ? commitments.split('. ') : [];
   const result = {};
   lines.forEach((line) => {
     const separator = ` is committed to match donations to ${recipient} up to a maximum of `;

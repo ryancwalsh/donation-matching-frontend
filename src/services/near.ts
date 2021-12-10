@@ -9,7 +9,9 @@ https://github.com/isaacs/core-util-is/issues/27#issuecomment-878969583
 https://github.com/near/near-api-js/issues/747
 https://www.gatsbyjs.com/docs/debugging-html-builds/#how-to-check-if-window-is-defined
 */
-(window as any).Buffer = buffer.Buffer; // See comment block above.
+if (typeof window !== `undefined`) {
+  (window as any).Buffer = buffer.Buffer; // See comment block above.
+}
 
 export const contractId = process.env.GATSBY_CONTRACT_ID;
 const networkId = process.env.GATSBY_NETWORK_ID;
